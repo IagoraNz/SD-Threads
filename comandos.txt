@@ -1,0 +1,26 @@
+# Instalações
+
+sudo apt update && sudo apt upgrade -y
+
+sudo apt install -y build-essential cmake pkg-config wget
+
+sudo apt install -y g++ cmake make build-essential
+
+sudo apt install -y libboost-all-dev
+
+sudo apt install -y wget
+wget https://raw.githubusercontent.com/yhirose/cpp-httplib/master/httplib.h -O httplib.h
+
+sudo apt install -y pkg-config libssl-dev
+
+sudo apt install -y nlohmann-json3-dev
+
+# Como rodar a aplicação
+
+1. Primeiro terminal
+
+sudo docker-compose build
+
+sudo docker-compose up
+
+./main.cpp (rodando pelo botão compilador C/C++ compiler)

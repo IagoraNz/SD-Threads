@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  master:
+    build: ./master
+    ports:
+      - "8080:8080"
+    depends_on:
+      - slave1
+      - slave2
+
+  slave1:
+    build: ./slave1
+    ports:
+      - "5001:5001"
+
+  slave2:
+    build: ./slave2
+    ports:
+      - "5002:5002"
