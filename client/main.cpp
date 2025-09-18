@@ -1,4 +1,4 @@
-#include "../httplib.h"
+#include "httplib.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -33,11 +33,21 @@ void printMenu() {
     std::cout << "                   M  E  N  U\n" << RESET;
 
     std::cout << "\n1 - Enviar arquivo .txt para o AraraMestre\n";
+    std::cout << "2 - Alterar Host de comunicação\n";
     std::cout << "0 - Sair\n";
     std::cout << "Escolha uma opção: ";
 }
 
+std::string definirHost() {
+    std::string host_value;
+    std::cout << "Digite o IP e Host (X.X.X.X:XXXX): ";
+    std::cin >> host_value;
+    return host_value;
+}
+
 int main() {
+    std::string host_value = definirHost();
+
     int op = -1;
     while (op != 0) {
         printMenu();
@@ -60,18 +70,26 @@ int main() {
             buffer << file.rdbuf(); 
 
             printStatus("Enviando arquivo para o AraraMestre...");
-            httplib::Client cli("http://localhost:8080"); // Porta do mestre
+            httplib::Client cli("http://" + host_value); // Porta do mestre
+
+            cli.set_connection_timeout(5); // segundos
+            cli.set_read_timeout(5);
+            cli.set_write_timeout(5);
+
             auto res = cli.Post("/process", buffer.str(), "text/plain");
 
             if (res && res->status == 200) {
                 printStatus("Resposta recebida do AraraMestre!");
                 std::cout << BLUE << BOLD << res->body << RESET << std::endl;
             } else {
-                printError("Erro na comunicação com o AraraMestre.\nVerifique se o mestre está rodando e tente novamente.");
+                printError("Erro na comunicação com o AraraMestre.\nVerifique se o mestre está rodando ou o ip:host estão corretos e tente novamente.\nAtual (IP:HOST): " + host_value);
             }
         } else if (op == 0) {
             printStatus("Saindo do AraraArquivos. Até logo!");
-        } else {
+        } else if (op == 2) {
+            host_value = definirHost();
+        } 
+        else {
             printError("Opção inválida. Tente novamente.");
         }
     }
