@@ -4,8 +4,37 @@
 #include <future>
 #include <iostream>
 #include <stdexcept>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <ifaddrs.h>
 
 using json = nlohmann::json;
+
+// Função para obter o IP local da máquina
+std::string get_local_ip() {
+    struct ifaddrs *ifaddrs_ptr;
+    std::string ip = "127.0.0.1"; // fallback para localhost
+    
+    if (getifaddrs(&ifaddrs_ptr) == 0) {
+        for (struct ifaddrs *ifa = ifaddrs_ptr; ifa != nullptr; ifa = ifa->ifa_next) {
+            if (ifa->ifa_addr && ifa->ifa_addr->sa_family == AF_INET) {
+                struct sockaddr_in *addr_in = (struct sockaddr_in*)ifa->ifa_addr;
+                std::string temp_ip = inet_ntoa(addr_in->sin_addr);
+                
+                // Evita localhost e interfaces virtuais
+                if (temp_ip != "127.0.0.1" && temp_ip.substr(0, 7) != "172.17." && 
+                    temp_ip.substr(0, 4) != "169.") {
+                    ip = temp_ip;
+                    break;
+                }
+            }
+        }
+        freeifaddrs(ifaddrs_ptr);
+    }
+    return ip;
+}
 
 // Função segura para conversão de string para int
 int safe_stoi(const std::string &str) {
@@ -79,7 +108,19 @@ int main() {
         res.set_content(result.dump(), "application/json");
     });
 
-    std::cout << "Mestre rodando na porta 8080..." << std::endl;
+    // Obtém o IP local da máquina
+    std::string local_ip = get_local_ip();
+    
+    std::cout << "========================================" << std::endl;
+    std::cout << "       SERVIDOR MASTER INICIANDO       " << std::endl;
+    std::cout << "========================================" << std::endl;
+    std::cout << "Porta: 8080" << std::endl;
+    std::cout << "IP Local: " << local_ip << std::endl;
+    std::cout << std::endl;
+    std::cout << "Para acessar na mesma rede, use:" << std::endl;
+    std::cout << "http://" << local_ip << ":8080/process" << std::endl;
+    std::cout << "========================================" << std::endl;
+    std::cout << std::endl;
     
     // Verifica status dos escravos na inicialização
     std::cout << "Verificando status dos escravos..." << std::endl;
@@ -94,6 +135,11 @@ int main() {
     } else {
         std::cout << "AVISO: Alguns escravos estao offline. O sistema pode nao funcionar corretamente." << std::endl;
     }
+    
+    std::cout << std::endl;
+    std::cout << "Servidor rodando e aguardando conexões..." << std::endl;
+    std::cout << "Para parar o servidor, pressione Ctrl+C" << std::endl;
+    std::cout << "========================================" << std::endl;
 
     svr.listen("0.0.0.0", 8080);
 }
