@@ -10,6 +10,9 @@ int main() {
         for (char c : req.body) {
             if (std::isalpha(static_cast<unsigned char>(c))) count++;
         }
+
+        std::cout << "Contagem de letras concluída. Total: " << count << " letras encontradas." << std::endl;
+
         res.set_content(std::to_string(count), "text/plain");
     });
 

@@ -10,6 +10,9 @@ int main() {
         for (char c : req.body) {
             if (std::isdigit(static_cast<unsigned char>(c))) count++;
         }
+                
+        std::cout << "Contagem de números concluída. Total: " << count << " números encontrados." << std::endl;
+
         res.set_content(std::to_string(count), "text/plain");
     });
 
