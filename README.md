@@ -57,5 +57,8 @@ SD-Threads/
 │  
 ├── 🐳 docker-compose.yml  
 ├── 🐳 Dockerfile  
+├── 📄 .gitignore  
+├── 📄 comandos.txt  
+├── 📜 LICENSE  
 └── 📘 README.md  
 ```
